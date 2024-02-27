@@ -28,24 +28,45 @@ namespace GeoFeatureFinder
       List<Feature> features = new List<Feature>();
       foreach (var feature in parsedJson.features)
       {
-        features.Add(new Feature(feature));
+        var featureObj = new Feature(feature);
+        var (shortestDistance, closestLatitude, closestLongitude) = featureObj.CalculateShortestDistance(latitude, longitude);
+        featureObj.ShortestDistance = shortestDistance;
+        featureObj.ClosestLatitude = closestLatitude;
+        featureObj.ClosestLongitude = closestLongitude;
+        features.Add(featureObj);
       }
 
       foreach (var feature in features)
       {
-        var (shortestDistance, closestLatitude, closestLongitude) = feature.CalculateShortestDistance(latitude, longitude);
-
-        if (shortestDistance <= 1 && feature.HasMainHabitat())
+        if (feature.ShortestDistance <= 1 && feature.HasMainHabitat())
         {
           Console.WriteLine($"Properties: {feature.Properties}");
-          Console.WriteLine($"Shortest Distance: {shortestDistance} km");
-          Console.WriteLine($"Closest Latitude: {closestLatitude}");
-          Console.WriteLine($"Closest Longitude: {closestLongitude}");
+          Console.WriteLine($"Shortest Distance: {feature.ShortestDistance} km");
+          Console.WriteLine($"Closest Latitude: {feature.ClosestLatitude}");
+          Console.WriteLine($"Closest Longitude: {feature.ClosestLongitude}");
           Console.WriteLine();
+        }
+      }
 
-          feature.ShortestDistance = shortestDistance;
-          feature.ClosestLatitude = closestLatitude;
-          feature.ClosestLongitude = closestLongitude;
+      List<Dictionary<string, object>> flattenedFeatures = new List<Dictionary<string, object>>();
+
+      foreach (var feature in features)
+      {
+        if (feature.ShortestDistance <= 1 && feature.HasMainHabitat())
+        {
+          Dictionary<string, object> flattenedFeature = new Dictionary<string, object>
+          {
+            { "ShortestDistance", feature.ShortestDistance },
+            { "ClosestLatitude", feature.ClosestLatitude },
+            { "ClosestLongitude", feature.ClosestLongitude },
+          };
+
+          foreach (var property in feature.GetFlattenedProperties())
+          {
+            flattenedFeature.Add(property.Key, property.Value);
+          }
+
+          flattenedFeatures.Add(flattenedFeature);
         }
       }
 
@@ -53,7 +74,25 @@ namespace GeoFeatureFinder
       using (var writer = new StreamWriter(csvFilePath))
       using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
       {
-        csv.WriteRecords(features.Where(feature => feature.HasMainHabitat() && feature.CalculateShortestDistance(latitude, longitude).shortestDistance <= 1));
+        // Write the header
+        if (flattenedFeatures.Any())
+        {
+          foreach (var key in flattenedFeatures[0].Keys)
+          {
+            csv.WriteField(key);
+          }
+          csv.NextRecord();
+        }
+
+        // Write the records
+        foreach (var record in flattenedFeatures)
+        {
+          foreach (var value in record.Values)
+          {
+            csv.WriteField(value);
+          }
+          csv.NextRecord();
+        }
       }
       Console.WriteLine($"Results written to {csvFilePath}");
     }

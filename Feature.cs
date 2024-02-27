@@ -50,5 +50,10 @@ namespace GeoFeatureFinder
 
       return (shortestDistance, closestLatitude, closestLongitude);
     }
+
+    public Dictionary<string, string> GetFlattenedProperties()
+    {
+      return JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(Properties));
+    }
   }
 }
