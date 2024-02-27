@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CsvHelper;
 
 namespace GeoFeatureFinder
 {
@@ -10,12 +11,21 @@ namespace GeoFeatureFinder
       double longitude = UserInput.GetDoubleFromUser("Enter longitude:");
 
       string filePath = @"data\Priority_Habitat_Inventory_England.json";
+      string json;
 
-      string json = File.ReadAllText(filePath);
+      try
+      {
+        json = File.ReadAllText(filePath);
+      }
+      catch (Exception err)
+      {
+        Console.WriteLine($"Error reading file: {err.Message}");
+        return;
+      }
 
       dynamic parsedJson = JsonConvert.DeserializeObject(json) ?? throw new ArgumentException("Invalid JSON");
 
-      List<Feature> features = [];
+      List<Feature> features = new List<Feature>();
       foreach (var feature in parsedJson.features)
       {
         features.Add(new Feature(feature));
@@ -32,8 +42,20 @@ namespace GeoFeatureFinder
           Console.WriteLine($"Closest Latitude: {closestLatitude}");
           Console.WriteLine($"Closest Longitude: {closestLongitude}");
           Console.WriteLine();
+
+          feature.ShortestDistance = shortestDistance;
+          feature.ClosestLatitude = closestLatitude;
+          feature.ClosestLongitude = closestLongitude;
         }
       }
+
+      string csvFilePath = @"data\Output.csv";
+      using (var writer = new StreamWriter(csvFilePath))
+      using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+      {
+        csv.WriteRecords(features.Where(feature => feature.HasMainHabitat() && feature.CalculateShortestDistance(latitude, longitude).shortestDistance <= 1));
+      }
+      Console.WriteLine($"Results written to {csvFilePath}");
     }
   }
 }

@@ -1,9 +1,15 @@
+using Newtonsoft.Json;
+
 namespace GeoFeatureFinder
 {
   public class Feature
   {
     public dynamic Properties { get; set; }
+    public double ShortestDistance { get; set; }
+    public double ClosestLatitude { get; set; }
+    public double ClosestLongitude { get; set; }
     public dynamic Geometry { get; set; }
+    public string FormattedProperties => JsonConvert.SerializeObject(Properties, Formatting.Indented);
 
     public Feature(dynamic feature)
     {
