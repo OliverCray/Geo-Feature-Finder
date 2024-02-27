@@ -54,17 +54,16 @@ namespace GeoFeatureFinder
       {
         if (feature.ShortestDistance <= 1 && feature.HasMainHabitat())
         {
-          Dictionary<string, object> flattenedFeature = new Dictionary<string, object>
-          {
-            { "ShortestDistance", feature.ShortestDistance },
-            { "ClosestLatitude", feature.ClosestLatitude },
-            { "ClosestLongitude", feature.ClosestLongitude },
-          };
+          Dictionary<string, object> flattenedFeature = new Dictionary<string, object>();
 
           foreach (var property in feature.GetFlattenedProperties())
           {
             flattenedFeature.Add(property.Key, property.Value);
           }
+
+          flattenedFeature.Add("ShortestDistance", feature.ShortestDistance);
+          flattenedFeature.Add("ClosestLatitude", feature.ClosestLatitude);
+          flattenedFeature.Add("ClosestLongitude", feature.ClosestLongitude);
 
           flattenedFeatures.Add(flattenedFeature);
         }
@@ -75,7 +74,7 @@ namespace GeoFeatureFinder
       using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
       {
         // Write the header
-        if (flattenedFeatures.Any())
+        if (flattenedFeatures.Count != 0)
         {
           foreach (var key in flattenedFeatures[0].Keys)
           {
