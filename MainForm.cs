@@ -143,6 +143,7 @@ namespace GeoFeatureFinder
     {
       using (OpenFileDialog openFileDialog = new OpenFileDialog())
       {
+        openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
         if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
           inputFilePathTextBox.Text = openFileDialog.FileName;
@@ -154,6 +155,7 @@ namespace GeoFeatureFinder
     {
       using (SaveFileDialog saveFileDialog = new SaveFileDialog())
       {
+        saveFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
         if (saveFileDialog.ShowDialog() == DialogResult.OK)
         {
           outputFilePathTextBox.Text = saveFileDialog.FileName;
