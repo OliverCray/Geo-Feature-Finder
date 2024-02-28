@@ -40,7 +40,7 @@ namespace GeoFeatureFinder
             double distance = GeoCalculator.CalculateDistance(latitude, longitude, featureLatitude, featureLongitude);
             if (distance < shortestDistance)
             {
-              shortestDistance = distance;
+              shortestDistance = Math.Round(distance, 2);
               closestLatitude = featureLatitude;
               closestLongitude = featureLongitude;
             }
