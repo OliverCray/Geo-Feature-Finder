@@ -2,17 +2,20 @@ namespace GeoFeatureFinder
 {
   public class MainForm : Form
   {
-    private Button runButton;
-    private Button inputFileButton;
-    private Button outputFileButton;
-    private TextBox filePathTextBox;
-    private TextBox outputPathTextBox;
-    private TextBox latitudeTextBox;
-    private TextBox longitudeTextBox;
-    private ProgressBar progressBar;
+    private readonly Button runButton;
+    private readonly Button inputFileButton;
+    private readonly Button outputFileButton;
+    private readonly TextBox inputFilePathTextBox;
+    private readonly TextBox outputFilePathTextBox;
+    private readonly TextBox latitudeTextBox;
+    private readonly TextBox longitudeTextBox;
+    private readonly ProgressBar progressBar;
 
     public MainForm()
     {
+      // Set application title
+      Text = "Geo Feature Finder";
+
       TableLayoutPanel panel = new TableLayoutPanel
       {
         ColumnCount = 3,
@@ -48,13 +51,13 @@ namespace GeoFeatureFinder
       };
       outputFileButton.Click += OutputFileButton_Click;
 
-      filePathTextBox = new TextBox
+      inputFilePathTextBox = new TextBox
       {
         PlaceholderText = "Enter input file path (Your GeoJSON file)",
         Dock = DockStyle.Top,
       };
 
-      outputPathTextBox = new TextBox
+      outputFilePathTextBox = new TextBox
       {
         PlaceholderText = "Enter output path",
         Dock = DockStyle.Top,
@@ -111,25 +114,25 @@ namespace GeoFeatureFinder
       };
 
       panel.Controls.Add(inputFilePathLabel, 0, 0);
-      panel.Controls.Add(filePathTextBox, 1, 0);
+      panel.Controls.Add(inputFilePathTextBox, 1, 0);
       panel.Controls.Add(inputFileButton, 2, 0);
       panel.Controls.Add(latitudeLabel, 0, 1);
       panel.Controls.Add(latitudeTextBox, 1, 1);
       panel.Controls.Add(longitudeLabel, 0, 2);
       panel.Controls.Add(longitudeTextBox, 1, 2);
       panel.Controls.Add(outputFilePathLabel, 0, 3);
-      panel.Controls.Add(outputPathTextBox, 1, 3);
+      panel.Controls.Add(outputFilePathTextBox, 1, 3);
       panel.Controls.Add(outputFileButton, 2, 3);
       panel.Controls.Add(runButton, 1, 4);
       panel.Controls.Add(progressBarLabel, 0, 4);
       panel.Controls.Add(progressBar, 1, 4);
 
       // Set TabIndex
-      filePathTextBox.TabIndex = 0;
+      inputFilePathTextBox.TabIndex = 0;
       inputFileButton.TabIndex = 1;
       latitudeTextBox.TabIndex = 2;
       longitudeTextBox.TabIndex = 3;
-      outputPathTextBox.TabIndex = 4;
+      outputFilePathTextBox.TabIndex = 4;
       outputFileButton.TabIndex = 5;
       runButton.TabIndex = 6;
 
@@ -142,7 +145,7 @@ namespace GeoFeatureFinder
       {
         if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
-          filePathTextBox.Text = openFileDialog.FileName;
+          inputFilePathTextBox.Text = openFileDialog.FileName;
         }
       }
     }
@@ -153,7 +156,7 @@ namespace GeoFeatureFinder
       {
         if (saveFileDialog.ShowDialog() == DialogResult.OK)
         {
-          outputPathTextBox.Text = saveFileDialog.FileName;
+          outputFilePathTextBox.Text = saveFileDialog.FileName;
         }
       }
     }
@@ -166,16 +169,50 @@ namespace GeoFeatureFinder
         progressBar.Maximum = 100;
         progressBar.Value = 0;
 
-        string filePath = filePathTextBox.Text;
-        string outputPath = outputPathTextBox.Text;
-        double latitude = double.Parse(latitudeTextBox.Text);
-        double longitude = double.Parse(longitudeTextBox.Text);
+        string inputPath = inputFilePathTextBox.Text;
+        string outputPath = outputFilePathTextBox.Text;
 
-        Program.RunGeoFeatureFinder(filePath, outputPath, latitude, longitude);
+        if (string.IsNullOrWhiteSpace(inputPath))
+        {
+          MessageBox.Show("Please enter a valid input file path.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+          MessageBox.Show("Please enter a valid output path.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        if (!double.TryParse(latitudeTextBox.Text, out double latitude))
+        {
+          MessageBox.Show("Please enter a valid latitude.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        if (!double.TryParse(longitudeTextBox.Text, out double longitude))
+        {
+          MessageBox.Show("Please enter a valid longitude.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        if (latitude < -90 || latitude > 90)
+        {
+          MessageBox.Show("Latitude must be between -90 and 90.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        if (longitude < -180 || longitude > 180)
+        {
+          MessageBox.Show("Longitude must be between -180 and 180.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
+        Program.RunGeoFeatureFinder(inputPath, outputPath, latitude, longitude);
 
         progressBar.Value = 100;
 
-        MessageBox.Show("Operation completed successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show($"Output has been successfully written to '{outputPath}'.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
       }
       catch (Exception err)
       {
