@@ -5,17 +5,21 @@ namespace GeoFeatureFinder
 {
   class Program
   {
+    [STAThread]
     public static void Main()
     {
-      double latitude = UserInput.GetDoubleFromUser("Enter latitude:");
-      double longitude = UserInput.GetDoubleFromUser("Enter longitude:");
+      Application.EnableVisualStyles();
+      Application.SetCompatibleTextRenderingDefault(false);
+      Application.Run(new MainForm());
+    }
 
-      string filePath = @"data\Priority_Habitat_Inventory_England.json";
+    public static void RunGeoFeatureFinder(string inputFilePath, string outputFilePath, double latitude, double longitude)
+    {
       string json;
 
       try
       {
-        json = File.ReadAllText(filePath);
+        json = File.ReadAllText(inputFilePath);
       }
       catch (Exception err)
       {
@@ -69,8 +73,7 @@ namespace GeoFeatureFinder
         }
       }
 
-      string csvFilePath = @"data\Output.csv";
-      using (var writer = new StreamWriter(csvFilePath))
+      using (var writer = new StreamWriter(outputFilePath))
       using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
       {
         // Write the header
@@ -93,7 +96,7 @@ namespace GeoFeatureFinder
           csv.NextRecord();
         }
       }
-      Console.WriteLine($"Results written to {csvFilePath}");
+      Console.WriteLine($"Results written to {outputFilePath}");
     }
   }
 }
