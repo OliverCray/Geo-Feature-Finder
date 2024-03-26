@@ -4,8 +4,10 @@ namespace GeoFeatureFinder
   {
     private const int earthRadius = 6371; // Radius of the earth in km
 
+    // Method to calculate the distance between two points on the earth's surface
     public static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
+      // Haversine formula for distance calculation
       double dLat = Deg2Rad(lat2 - lat1);
       double dLon = Deg2Rad(lon2 - lon1);
       double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +

@@ -2,6 +2,7 @@ namespace GeoFeatureFinder
 {
   public class MainForm : Form
   {
+    // Declare form controls
     private readonly Button runButton;
     private readonly Button inputFileButton;
     private readonly Button outputFileButton;
@@ -30,6 +31,7 @@ namespace GeoFeatureFinder
         panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / panel.RowCount));
       }
 
+      // Initialize form controls
       runButton = new Button
       {
         Text = "Run",
@@ -113,6 +115,7 @@ namespace GeoFeatureFinder
         Dock = DockStyle.Top,
       };
 
+      // Add form controls to panel
       panel.Controls.Add(inputFilePathLabel, 0, 0);
       panel.Controls.Add(inputFilePathTextBox, 1, 0);
       panel.Controls.Add(inputFileButton, 2, 0);
@@ -127,7 +130,7 @@ namespace GeoFeatureFinder
       panel.Controls.Add(progressBarLabel, 0, 4);
       panel.Controls.Add(progressBar, 1, 4);
 
-      // Set TabIndex
+      // Set TabIndex for form controls
       inputFilePathTextBox.TabIndex = 0;
       inputFileButton.TabIndex = 1;
       latitudeTextBox.TabIndex = 2;
@@ -136,11 +139,14 @@ namespace GeoFeatureFinder
       outputFileButton.TabIndex = 5;
       runButton.TabIndex = 6;
 
+      // Add panel to form
       Controls.Add(panel);
     }
 
+    // Event handler for input file button click
     private void InputFileButton_Click(object? sender, EventArgs e)
     {
+      // Open file dialog to select input file
       using (OpenFileDialog openFileDialog = new OpenFileDialog())
       {
         openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
@@ -151,8 +157,10 @@ namespace GeoFeatureFinder
       }
     }
 
+    // Event handler for output file button click
     private void OutputFileButton_Click(object? sender, EventArgs e)
     {
+      // Open file dialog to select output file
       using (SaveFileDialog saveFileDialog = new SaveFileDialog())
       {
         saveFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
@@ -163,17 +171,21 @@ namespace GeoFeatureFinder
       }
     }
 
+    // Event handler for run button click
     private void RunButton_Click(object? sender, EventArgs e)
     {
       try
       {
+        // Initialize progress bar
         progressBar.Minimum = 0;
         progressBar.Maximum = 100;
         progressBar.Value = 0;
 
+        // Get input values from form controls
         string inputPath = inputFilePathTextBox.Text;
         string outputPath = outputFilePathTextBox.Text;
 
+        // Validate input values
         if (string.IsNullOrWhiteSpace(inputPath))
         {
           MessageBox.Show("Please enter a valid input file path.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);

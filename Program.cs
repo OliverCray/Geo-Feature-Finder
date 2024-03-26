@@ -30,6 +30,7 @@ namespace GeoFeatureFinder
       dynamic parsedJson = JsonConvert.DeserializeObject(json) ?? throw new ArgumentException("Invalid JSON");
 
       List<Feature> features = new List<Feature>();
+      // Iterate over each feature from the input JSON and update the properties to always have the shortest distance and closest latitude and longitude from that feature to the given latitude and longitude
       foreach (var feature in parsedJson.features)
       {
         var featureObj = new Feature(feature);
